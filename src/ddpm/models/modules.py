@@ -268,7 +268,7 @@ class AttenionFiLMResUNet(nn.Module):
 
         in_out = list(zip(dims_list[:-1], dims_list[1:]))
         # 32-64, 64-128, 128-256, 256-512 
-        print(f"DIM LIST : {dims_list}")
+        # print(f"DIM LIST : {dims_list}")
         for i, (dim_in , dim_out) in enumerate(in_out):
             is_last = i >= (len(in_out) - 1)
 
