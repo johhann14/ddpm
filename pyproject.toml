@@ -1,0 +1,31 @@
+[build-system]
+requires=["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ddpm"
+version="0.1.0"
+description = "ddpm: from theory to implementation"
+authors=[
+    {name= "Johann LY"}
+]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy==2.4.6",
+    "pandas==3.0.6",
+    "torch==2.14.1",
+    "torchvision==0.29.1",
+    "mlflow==3.17.0",
+    "einops==0.8.2",
+]
+readme="README.md"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
