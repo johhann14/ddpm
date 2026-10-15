@@ -10,5 +10,5 @@ data/*
 !data/.gitkeep
 
 configs/*
-!configs/ase_config.yaml
+!configs/base_config.yaml
 
