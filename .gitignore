@@ -9,12 +9,6 @@ __pycache__/
 data/*
 !data/.gitkeep
 
-experiments/runs/*
-!experiments/runs/.gitkeep
-
-
 configs/*
-!configs/.gitkeep
-!configs/ens_coxnet_xgbcox_3_seeds.yaml
-!configs/coxnet_top20_ipssm_wo_monocytes.yaml
-!configs/xgb_cox_3_seeds.yaml%   
+!configs/ase_config.yaml
+
