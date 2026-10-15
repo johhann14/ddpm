@@ -7,7 +7,7 @@ name = "ddpm"
 version="0.1.0"
 description = "ddpm: from theory to implementation"
 authors=[
-    {name= "Johann LY"}
+    {name= "johann"}
 ]
 requires-python = ">=3.11"
 dependencies = [
@@ -17,6 +17,8 @@ dependencies = [
     "torchvision==0.29.1",
     "mlflow==3.17.0",
     "einops==0.8.2",
+    "loguru==0.7.3",
+    "tqdm==4.70.1",
 ]
 readme="README.md"
 

@@ -27,3 +27,12 @@ def test_forward_DiffusionModel(diffusion_model):
 
     loss = diffusion_model(x)
     assert loss.shape == ()
+
+
+
+def test_sampling_DiffusionModel(diffusion_model):
+    x = torch.randn(size=(16, 3, 32, 32))
+    for t in [1, diffusion_model.T // 2, diffusion_model.T - 1]:
+        x_denoised = diffusion_model.sampling(x, t)
+
+        assert x_denoised.shape == x.shape

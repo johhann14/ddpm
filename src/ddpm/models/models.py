@@ -74,10 +74,23 @@ class DiffusionModel(nn.Module):
         xt = (alpha_t ** .5) * x + ((1 - alpha_t) ** .5) * noise 
 
 
-        preds = self.network(xt, t)   
+        noise_preds = self.network(xt, t)   
 
-        loss = F.mse_loss(preds, noise)
+        loss = F.mse_loss(noise_preds, noise)
 
         return loss
 
 
+    @torch.no_grad
+    def sampling(self, x, t):
+        if t > 1:
+            z = torch.randn_like(x)
+        else:
+            z = 0
+
+        
+        predicted_noise = self.network(x, torch.ones((x.shape[0]), device=x.device) * t)
+        noise_scale = (1 - self.alphas[t]) / ((1 - self.alphas_prod[t]) ** 0.5)
+        x = (1 / self.alphas[t]**0.5) * (x - noise_scale * predicted_noise) + (self.betas[t] ** 0.5) * z
+
+        return x
