@@ -21,12 +21,14 @@ def get_loaders(root_dir, dataset_name, batch_size, num_workers, seed):
                         batch_size=batch_size,
                         shuffle=True,
                         num_workers=num_workers,
+                        pin_memory=True,
     )
     val_loader = DataLoader(
                         dataset=val_dataset,
                         batch_size=batch_size,
                         shuffle=True,
-                        num_workers=num_workers
+                        num_workers=num_workers,
+                        pin_memory=True,
     )    
 
     return tr_loader, val_loader

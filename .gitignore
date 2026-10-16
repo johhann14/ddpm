@@ -11,4 +11,8 @@ data/*
 
 configs/*
 !configs/base_config.yaml
+!configs/gpu_base_config.yaml
 
+
+experiments/*
+!experiments/.gitkeep

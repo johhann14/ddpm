@@ -18,7 +18,7 @@ def diffusion_model():
 
 @pytest.fixture
 def config():
-    cfg = OmegaConf.load("/home/joh/Sync/pro/projects/ddpm/configs/base_config.yaml")
+    cfg = OmegaConf.load("/home/joh/Sync/pro/ddpm/configs/base_config.yaml")
     return cfg
 
 @pytest.fixture
