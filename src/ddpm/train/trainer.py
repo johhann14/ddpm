@@ -19,7 +19,7 @@ import argparse
 
 from itertools import islice
 
-
+from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
 # class ModelConfig:
 
 #     def __init__(
@@ -88,6 +88,9 @@ class Trainer:
 
         self.model = diffusion_model
         self.model.to(self.device)
+
+        self.ema = AveragedModel(self.model, multi_avg_fn=get_ema_multi_avg_fn(0.9999))
+
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.lr = lr
@@ -128,7 +131,15 @@ class Trainer:
             loss = self.model(x)
             self.optimizer.zero_grad()
             loss.backward()
+
+            nn.utils.clip_grad_norm_(
+                self.model.parameters(),
+                max_norm=1.0,
+            )
+            
             self.optimizer.step()
+            self.ema.update_parameters(self.model)
+
             loss_acc += loss.item()
             n+=1
             pbar.set_postfix({"Loss": {loss_acc/n}})
@@ -168,6 +179,7 @@ class Trainer:
     def on_epoch_end(self):
         self.logger.log_key_value('epoch_end_time', time.perf_counter(), self.step)
         epoch_duration = self.logger.get_value('epoch_end_time', epoch=self.step) - self.logger.get_value('epoch_start_time', epoch=self.step)
+        self.logger.log_key_value(key="epoch_duration", value=epoch_duration, epoch=self.step)
         
         tr_loss = self.logger.get_value('tr_loss', epoch=self.step)
         val_loss = self.logger.get_value('val_loss', epoch=self.step)
@@ -178,9 +190,10 @@ class Trainer:
 
         self.logger.plot_png()
 
-        if (self.step+1) % 20 == 0:
+        if (self.step+1) % 2 == 0:
             self.logger.save_checkpoint(
                         model_state_dict=self.model.state_dict(),
+                        ema_state_dict=self.ema.state_dict(),
                         optimizer_state_dict=self.optimizer.state_dict(),
                         epoch=self.step,
                         mode='latest'
@@ -205,6 +218,14 @@ class Trainer:
     def on_train_start(self):
         logger.info(f"Running trainning")
 
+    def on_train_end(self):
+        self.logger.save_checkpoint(
+                    model_state_dict=self.model.state_dict(),
+                    ema_state_dict=self.ema.state_dict(),
+                    optimizer_state_dict=self.optimizer.state_dict(),
+                    epoch=self.step,
+                    mode='latest'
+        )
     def train(self, train_loader, val_loader):
 
 
@@ -218,6 +239,8 @@ class Trainer:
             self.on_validation_epoch_end(validation_outputs=val_outputs)
 
             self.on_epoch_end()
+
+        self.on_train_end()
     def count_parameters(self):
         return sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 
@@ -267,7 +290,9 @@ if __name__ == "__main__":
         tr_loader, val_loader = get_loaders(dataset_name=data_cfg.dataset_name,
                                             batch_size=train_cfg.batch_size,
                                             num_workers=data_cfg.num_workers,
-                                            seed=experiment_cfg.seed)
+                                            seed=experiment_cfg.seed,
+                                            max_samples=data_cfg.max_samples                
+                            )
 
         lg.log_params(cfg)
         trainer.train(train_loader=tr_loader, val_loader=val_loader)

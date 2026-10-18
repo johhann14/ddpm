@@ -27,9 +27,9 @@ def _flatten(d, prefix=""):
     for k,v in d.items():
         key = f"{prefix}{k}"
         if isinstance(v, dict):
-            out.update(_flatten(v,), prefix=f"{key}.")
+            out.update(_flatten(v, prefix=f"{key}."))
         else:
-            out[k] = v
+            out[key] = v
 
     return out
 class CustomLogger:
@@ -67,7 +67,8 @@ class CustomLogger:
     def log_key_value(self, key, value, epoch):
         self.trace[key].append(value)
         if self.use_mlflow:
-            mlflow.log_metric(key, value, epoch)
+            if key not in ["epoch_start_time", "epoch_end_time"]:
+                mlflow.log_metric(key, value, epoch)
 
     def get_value(self, key, epoch):
         return self.trace[key][epoch]
@@ -77,7 +78,7 @@ class CustomLogger:
         # print(self.trace)
         epoch = min([len(l) for l in self.trace.values()])
      
-        print(f"epoch : {epoch}")
+        # print(f"epoch : {epoch}")
         fig, axes = plt.subplots(1, 1, figsize=(10, 6))
 
         # axes = axes.flatten()
@@ -93,11 +94,12 @@ class CustomLogger:
         plt.close()
 
 
-    def save_checkpoint(self, model_state_dict, optimizer_state_dict, epoch, mode):
+    def save_checkpoint(self, model_state_dict, optimizer_state_dict, ema_state_dict, epoch, mode):
         checkpoint = {
             "epoch": epoch,
             "model_state_dict": model_state_dict,
-            "optimize_state_dict": optimizer_state_dict,
+            "ema_state_dict": ema_state_dict,
+            "optimizer_state_dict": optimizer_state_dict,
         }
         file_path = f'{self.run_dir}/checkpoints/{mode}_model.pt'
         tmp_path = f'{file_path}.tmp'
@@ -107,14 +109,14 @@ class CustomLogger:
         if self.use_mlflow:
             mlflow.log_artifact(file_path, artifact_path="checkpoints")
 
-    def log_model(self, model, registered_name=None):
-        if not self.use_mlflow:
-            return
-        mlflow.pytorch.log_model(
-                    pytorch_model=model,
-                    name="model",
-                    registered_model_name=registered_name
-        )
+    # def log_model(self, model, registered_name=None):
+    #     if not self.use_mlflow:
+    #         return
+    #     mlflow.pytorch.log_model(
+    #                 pytorch_model=model,
+    #                 name="model",
+    #                 registered_model_name=registered_name
+    #     )
 
     def log_params(self, cfg):
         cfg_dict = OmegaConf.to_container(cfg, resolve=True)
