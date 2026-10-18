@@ -26,7 +26,7 @@ dataset_cfg = {
 
 
 class DatasetWrapper(Dataset):
-    def __init__(self, root_dir:str,  dataset_name: str, train_bool: bool):
+    def __init__(self, dataset_name: str, train_bool: bool):
 
 
         # if self.dataset[dataset_name]['padding']:
@@ -35,7 +35,7 @@ class DatasetWrapper(Dataset):
         
         t = transforms.Compose([transforms.ToTensor()]) # transforms.toTensor already range from 0 to 1
         self.dataset = dataset_cfg[dataset_name]['cl'](
-                            root=root_dir,
+                            root=DATA_DIR,
                             train=train_bool,
                             transform=t,
                             target_transform=None,

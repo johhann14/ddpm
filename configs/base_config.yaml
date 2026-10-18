@@ -1,25 +1,37 @@
 experiment:
-  name: baseline
+  name: azerty
   description: baaseline
   seed: 42
   tags: []
 
 
 data:
-  root_dir: data/
   dataset_name: CIFAR10
-  batch_size: 16
-  seed: 42
+  img_size: [32,32]
+  num_channels: 3
   num_workers: 4
 
+
+model:
+  diffusion_steps: 1000
+  in_channels: ${data.num_channels}
+  in_size: ${data.img_size}
+  initial_channels: 64
+  base_channels: 64
+  dim_mults: [1, 2, 4, 8]
+  groups: 8
 
 #omega conf load correctly scientific notation numbers
 training:
 
   batch_size: 16
   lr: 2e-4
-  num_workers: 4
-  num_epochs: 2
-  device: cpu
   adam_betas: [0.99, 0.999]
-  
+  num_epochs: 250
+  device: cpu
+
+logger:
+  logging: true
+  use_mlflow: true
+  dataset_name: ${data.dataset_name}
+  run_name: ${experiment.name}
