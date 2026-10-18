@@ -16,3 +16,6 @@ configs/*
 
 experiments/*
 !experiments/.gitkeep
+
+mlflow.db
+mlruns/
